@@ -21,6 +21,10 @@ module.exports = function (grunt) {
         },
         files: ['angular-busy.html','angular-busy.js','angular-busy.css','dist/**/*','demo/**/*'],
         tasks: ['jshint','build']
+      },
+      test: {
+        files: ['test/*.js'],
+        tasks: ['test']
       }
     },
     jshint: {
