@@ -2,14 +2,15 @@ describe('cgBusy', function() {
 
 	beforeEach(module('app'));
 
-	var scope,compile,q,httpBackend,timeout;
+	var scope,compile,q,httpBackend,timeout,cgBusyProfiles;
 
-	beforeEach(inject(function($rootScope,$compile,$q,$httpBackend,$templateCache,$timeout) {
+	beforeEach(inject(function($rootScope,$compile,$q,$httpBackend,$templateCache,$timeout,_cgBusyProfiles_) {
 		scope = $rootScope.$new();
 		compile = $compile;
 		q = $q;
 		httpBackend = $httpBackend;
 		timeout = $timeout;
+		cgBusyProfiles = _cgBusyProfiles_;
 		httpBackend.whenGET('test-custom-template.html').respond(function(method, url, data, headers){
 
 			return [[200],'<div id="custom">test-custom-template-contents</div>'];
@@ -132,6 +133,66 @@ describe('cgBusy', function() {
 		timeout.flush(101); //1001ms total
 		expect(this.element.children().css('display')).toBe('none');
 
-	});	
+	});
+
+	it('cgBusyProfiles set/get/remove/keys should work correctly.', function() {
+		var testProfile1 = {
+			delay: 200,
+			minDuration: 100
+		};
+		testProfile2 = {
+			message: 'foo',
+			delay: 100
+		};
+		
+		cgBusyProfiles.set('testProfile1', testProfile1);
+		expect(cgBusyProfiles.get('testProfile1')).toEqual(testProfile1);
+
+		cgBusyProfiles.set('testProfile2', testProfile2);
+		expect(cgBusyProfiles.get('testProfile2')).toEqual(testProfile2);
+
+		var keys = cgBusyProfiles.keys();
+		expect(keys.length).toBe(2);
+		expect(keys).toContain('testProfile1');
+		expect(keys).toContain('testProfile2');
+
+		cgBusyProfiles.remove('testProfile2');
+
+		keys = cgBusyProfiles.keys();
+		expect(keys.length).toBe(1);
+		expect(keys).toContain('testProfile1');
+
+		cgBusyProfiles.remove('testProfile1');
+		keys = cgBusyProfiles.keys();
+		expect(keys.length).toBe(0);
+	});
+
+	it('should use cgBusyProfiles correctly.', function() {
+		var testProfile1 = {
+			delay: 300,
+			message: 'foo'
+		};
+		cgBusyProfiles.set('testProfile1', testProfile1);
+
+		this.element = compile('<div cg-busy="{promise:my_promise,delay:200,profile:\'testProfile1\'}"></div>')(scope);
+		angular.element('body').append(this.element);
+
+		this.testPromise = q.defer();
+		scope.my_promise = this.testPromise.promise;
+
+		scope.$apply();
+
+		expect(this.element.children().length).toBe(2); //ensure the elements are added
+
+		expect(this.element.children().css('display')).toBe('none');
+		expect(this.element.find('.cg-busy-default-text').text()).toBe('foo');
+
+		timeout.flush(200);
+		expect(this.element.children().css('display')).toBe('block');
+
+		this.testPromise.resolve();
+		timeout.flush(400);
+		expect(this.element.children().css('display')).toBe('none');
+	});
 
 });

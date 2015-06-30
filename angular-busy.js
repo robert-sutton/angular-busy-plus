@@ -116,10 +116,39 @@ angular.module('cgBusy').factory('_cgBusyTrackerFactory',['$timeout','$q',functi
     };
 }]);
 
+angular.module('cgBusy').factory('cgBusyProfiles', function() {
+    var profiles = {};
+
+    return {
+        set: function(profileName, profileValues) {
+            if (!profileName) {
+                throw new Error('profileName must be provided');
+            } else if (!angular.isObject(profileValues)) {
+                throw new Error('profileValues must be an object!');
+            }
+            profiles[profileName] = profileValues;
+            return profiles[profileName];
+        },
+        get: function(profileName) {
+            return profiles[profileName];
+        },
+        keys: function() {
+            var keys = [];
+            for (var key in profiles) {
+                keys.push(key);
+            }
+            return keys;
+        },
+        remove: function(profileName) {
+            return delete profiles[profileName];
+        }
+    };
+});
+
 angular.module('cgBusy').value('cgBusyDefaults',{});
 
-angular.module('cgBusy').directive('cgBusy',['$compile','$templateCache','cgBusyDefaults','$http','_cgBusyTrackerFactory',
-    function($compile,$templateCache,cgBusyDefaults,$http,_cgBusyTrackerFactory){
+angular.module('cgBusy').directive('cgBusy',['$compile','$templateCache','cgBusyDefaults','cgBusyProfiles','$http','_cgBusyTrackerFactory',
+    function($compile,$templateCache,cgBusyDefaults,cgBusyProfiles,$http,_cgBusyTrackerFactory){
         return {
             restrict: 'A',
             link: function(scope, element, attrs, fn) {
@@ -163,7 +192,15 @@ angular.module('cgBusy').directive('cgBusy',['$compile','$templateCache','cgBusy
                         options = {promise:options};
                     }
 
-                    options = angular.extend(angular.copy(defaults),options);
+                    var tmpOptions = angular.extend(angular.copy(defaults),options);
+                    // if a profile exists, use those values and override with any options
+                    if (tmpOptions.profile) {
+                        var profileValues = cgBusyProfiles.get(options.profile);
+                        if (profileValues) {
+                           angular.extend(tmpOptions, profileValues, options);
+                        }
+                    }
+                    options = tmpOptions;
 
                     if (!options.templateUrl){
                         options.templateUrl = defaults.templateUrl;
