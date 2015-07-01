@@ -1,8 +1,19 @@
 describe('cgBusy', function() {
 
-	beforeEach(module('app'));
-
 	var scope,compile,q,httpBackend,timeout,cgBusyProfiles;
+	var testProfile1 = {
+		delay: 200,
+		minDuration: 100
+	},
+	testProfile2 = {
+		message: 'foo',
+		delay: 100
+	};
+
+	beforeEach(module('app', function(cgBusyProfilesProvider) {
+		cgBusyProfilesProvider.addProfile('testProfile1', testProfile1);
+		cgBusyProfilesProvider.addProfile('testProfile2', testProfile2);
+	}));
 
 	beforeEach(inject(function($rootScope,$compile,$q,$httpBackend,$templateCache,$timeout,_cgBusyProfiles_) {
 		scope = $rootScope.$new();
@@ -135,46 +146,19 @@ describe('cgBusy', function() {
 
 	});
 
-	it('cgBusyProfiles set/get/remove/keys should work correctly.', function() {
-		var testProfile1 = {
-			delay: 200,
-			minDuration: 100
-		};
-		testProfile2 = {
-			message: 'foo',
-			delay: 100
-		};
-		
-		cgBusyProfiles.set('testProfile1', testProfile1);
+	it('cgBusyProfiles addProfile/get/keys should work correctly.', function() {
+	
 		expect(cgBusyProfiles.get('testProfile1')).toEqual(testProfile1);
-
-		cgBusyProfiles.set('testProfile2', testProfile2);
 		expect(cgBusyProfiles.get('testProfile2')).toEqual(testProfile2);
 
 		var keys = cgBusyProfiles.keys();
 		expect(keys.length).toBe(2);
 		expect(keys).toContain('testProfile1');
 		expect(keys).toContain('testProfile2');
-
-		cgBusyProfiles.remove('testProfile2');
-
-		keys = cgBusyProfiles.keys();
-		expect(keys.length).toBe(1);
-		expect(keys).toContain('testProfile1');
-
-		cgBusyProfiles.remove('testProfile1');
-		keys = cgBusyProfiles.keys();
-		expect(keys.length).toBe(0);
 	});
 
 	it('should use cgBusyProfiles correctly.', function() {
-		var testProfile1 = {
-			delay: 300,
-			message: 'foo'
-		};
-		cgBusyProfiles.set('testProfile1', testProfile1);
-
-		this.element = compile('<div cg-busy="{promise:my_promise,delay:200,profile:\'testProfile1\'}"></div>')(scope);
+		this.element = compile('<div cg-busy="{promise:my_promise,delay:100,profile:\'testProfile2\'}"></div>')(scope);
 		angular.element('body').append(this.element);
 
 		this.testPromise = q.defer();
@@ -187,7 +171,7 @@ describe('cgBusy', function() {
 		expect(this.element.children().css('display')).toBe('none');
 		expect(this.element.find('.cg-busy-default-text').text()).toBe('foo');
 
-		timeout.flush(200);
+		timeout.flush(100);
 		expect(this.element.children().css('display')).toBe('block');
 
 		this.testPromise.resolve();

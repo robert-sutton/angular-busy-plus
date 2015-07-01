@@ -116,32 +116,33 @@ angular.module('cgBusy').factory('_cgBusyTrackerFactory',['$timeout','$q',functi
     };
 }]);
 
-angular.module('cgBusy').factory('cgBusyProfiles', function() {
-    var profiles = {};
+angular.module('cgBusy').provider('cgBusyProfiles', function() {
+    this.profiles = {};
 
-    return {
-        set: function(profileName, profileValues) {
-            if (!profileName) {
-                throw new Error('profileName must be provided');
-            } else if (!angular.isObject(profileValues)) {
-                throw new Error('profileValues must be an object!');
-            }
-            profiles[profileName] = profileValues;
-            return profiles[profileName];
-        },
-        get: function(profileName) {
-            return profiles[profileName];
-        },
-        keys: function() {
-            var keys = [];
-            for (var key in profiles) {
-                keys.push(key);
-            }
-            return keys;
-        },
-        remove: function(profileName) {
-            return delete profiles[profileName];
+    this.addProfile = function (profileName, profileValues) {
+        if (!profileName) {
+            throw new Error('profileName must be provided');
+        } else if (!angular.isObject(profileValues)) {
+            throw new Error('profileValues must be an object!');
         }
+        this.profiles[profileName] = profileValues;
+        return this.profiles[profileName];
+    };
+
+    this.$get = function () {
+        var profiles = this.profiles;
+        return {
+            get: function(profileName) {
+                return profiles[profileName];
+            },
+            keys: function() {
+                var keys = [];
+                for (var key in profiles) {
+                    keys.push(key);
+                }
+                return keys;
+            }
+        };
     };
 });
 
