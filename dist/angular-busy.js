@@ -168,7 +168,7 @@ angular.module('cgBusy').directive('cgBusy',['$compile','$templateCache','cgBusy
                 var backdrop;
                 var tracker = _cgBusyTrackerFactory();
                 var deregisterActiveWatch;
-                var clonedElementContent;
+                var originalElementContent;
 
                 var defaults = {
                     templateUrl: 'angular-busy.html',
@@ -266,7 +266,15 @@ angular.module('cgBusy').directive('cgBusy',['$compile','$templateCache','cgBusy
                             .css('left',0)
                             .css('right',0)
                             .css('bottom',0);
-                        element.append(templateElement);
+
+                       // Get the original content and append it
+                        transcludeFn(scope, function (orig) {
+                            originalElementContent = orig;
+                            element.append(orig);
+
+                            // append cg-busy
+                            element.append(templateElement);
+                        });
                     };
 
                     templateScope.$applyInlineCgBusy = function(indicatorTemplate) {
@@ -274,9 +282,9 @@ angular.module('cgBusy').directive('cgBusy',['$compile','$templateCache','cgBusy
                         templateElement = $compile(template)(templateScope);
 
                         // Get the original button content and append it
-                        transcludeFn(scope, function (clone) {
-                          clonedElementContent = clone;
-                          element.append(clone);
+                        transcludeFn(scope, function (orig) {
+                          originalElementContent = orig;
+                          element.append(orig);
                         });
 
                         // get the width and height of the current element and let us
@@ -285,7 +293,7 @@ angular.module('cgBusy').directive('cgBusy',['$compile','$templateCache','cgBusy
                             if (busy) {
                                 if (options.inlineReplace) {
                                     // hide original element via visiblity so button does not shrink
-                                    clonedElementContent.css('visibility', 'hidden');
+                                    originalElementContent.css('visibility', 'hidden');
                                 }
                                 // append spinner to button
                                 element.append(templateElement);
@@ -293,7 +301,7 @@ angular.module('cgBusy').directive('cgBusy',['$compile','$templateCache','cgBusy
                             } else {
                                 // promise resolved
                                 templateElement.remove();
-                                clonedElementContent.css('visibility', '');
+                                originalElementContent.css('visibility', '');
                                 attrs.$set('disabled', false);
                             }
                         });
