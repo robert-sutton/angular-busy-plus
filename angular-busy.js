@@ -152,7 +152,8 @@ angular.module('cgBusy').directive('cgBusy',['$compile','$templateCache','cgBusy
     function($compile,$templateCache,cgBusyDefaults,cgBusyProfiles,$http,_cgBusyTrackerFactory){
         return {
             restrict: 'A',
-            link: function(scope, element, attrs, fn) {
+            transclude: true,
+            link: function(scope, element, attrs, fn, transcludeFn) {
 
                 //Apply position:relative to parent element if necessary
                 var position = element.css('position');
@@ -166,12 +167,16 @@ angular.module('cgBusy').directive('cgBusy',['$compile','$templateCache','cgBusy
                 var templateScope;
                 var backdrop;
                 var tracker = _cgBusyTrackerFactory();
+                var deregisterActiveWatch;
+                var clonedElementContent;
 
                 var defaults = {
                     templateUrl: 'angular-busy.html',
                     delay:0,
                     minDuration:0,
                     backdrop: true,
+                    inline: false,
+                    inlineReplace: true,
                     message:'Please Wait...',
                     wrapperClass: 'cg-busy cg-busy-animation'
                 };
@@ -235,6 +240,65 @@ angular.module('cgBusy').directive('cgBusy',['$compile','$templateCache','cgBusy
                         return tracker.active();
                     };
 
+                    templateScope.$applyCgBusy = function(indicatorTemplate) {
+                        if (options.inline) {
+                            templateScope.$applyInlineCgBusy(indicatorTemplate);
+                        } else {
+                            templateScope.$applyNormalCgBusy(indicatorTemplate);
+                        }
+                    };
+
+                    templateScope.$applyNormalCgBusy = function(indicatorTemplate) {
+                        options.backdrop = typeof options.backdrop === 'undefined' ? true : options.backdrop;
+
+                        if (options.backdrop){
+                            var backdrop = '<div class="cg-busy cg-busy-backdrop cg-busy-backdrop-animation ng-hide" ng-show="$cgBusyIsActive()"></div>';
+                            backdropElement = $compile(backdrop)(templateScope);
+                            element.append(backdropElement);
+                        }
+
+                        var template = '<div class="'+options.wrapperClass+' ng-hide" ng-show="$cgBusyIsActive()">' + indicatorTemplate + '</div>';
+                        templateElement = $compile(template)(templateScope);
+
+                        angular.element(templateElement.children()[0])
+                            .css('position','absolute')
+                            .css('top',0)
+                            .css('left',0)
+                            .css('right',0)
+                            .css('bottom',0);
+                        element.append(templateElement);
+                    };
+
+                    templateScope.$applyInlineCgBusy = function(indicatorTemplate) {
+                        var template = '<div class="'+options.wrapperClass+'">' + indicatorTemplate + '</div>';
+                        templateElement = $compile(template)(templateScope);
+
+                        // Get the original button content and append it
+                        transcludeFn(scope, function (clone) {
+                          clonedElementContent = clone;
+                          element.append(clone);
+                        });
+
+                        // get the width and height of the current element and let us
+                        // set them on the new template element.
+                        deregisterActiveWatch = templateScope.$watch('$cgBusyIsActive()', function (busy) {
+                            if (busy) {
+                                if (options.inlineReplace) {
+                                    // hide original element via visiblity so button does not shrink
+                                    clonedElementContent.css('visibility', 'hidden');
+                                }
+                                // append spinner to button
+                                element.append(templateElement);
+                                attrs.$set('disabled', true);
+                            } else {
+                                // promise resolved
+                                templateElement.remove();
+                                clonedElementContent.css('visibility', '');
+                                attrs.$set('disabled', false);
+                            }
+                        });
+                    };
+
 
                     if (!templateElement || currentTemplate !== options.templateUrl || backdrop !== options.backdrop) {
 
@@ -248,28 +312,7 @@ angular.module('cgBusy').directive('cgBusy',['$compile','$templateCache','cgBusy
                         currentTemplate = options.templateUrl;
                         backdrop = options.backdrop;
 
-                        $http.get(currentTemplate,{cache: $templateCache}).success(function(indicatorTemplate){
-
-                            options.backdrop = typeof options.backdrop === 'undefined' ? true : options.backdrop;
-
-                            if (options.backdrop){
-                                var backdrop = '<div class="cg-busy cg-busy-backdrop cg-busy-backdrop-animation ng-hide" ng-show="$cgBusyIsActive()"></div>';
-                                backdropElement = $compile(backdrop)(templateScope);
-                                element.append(backdropElement);
-                            }
-
-                            var template = '<div class="'+options.wrapperClass+' ng-hide" ng-show="$cgBusyIsActive()">' + indicatorTemplate + '</div>';
-                            templateElement = $compile(template)(templateScope);
-
-                            angular.element(templateElement.children()[0])
-                                .css('position','absolute')
-                                .css('top',0)
-                                .css('left',0)
-                                .css('right',0)
-                                .css('bottom',0);
-                            element.append(templateElement);
-
-                        }).error(function(data){
+                        $http.get(currentTemplate,{cache: $templateCache}).success(templateScope.$applyCgBusy).error(function(data){
                             throw new Error('Template specified for cgBusy ('+options.templateUrl+') could not be loaded. ' + data);
                         });
                     }
