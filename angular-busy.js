@@ -148,8 +148,8 @@ angular.module('cgBusy').provider('cgBusyProfiles', function() {
 
 angular.module('cgBusy').value('cgBusyDefaults',{});
 
-angular.module('cgBusy').directive('cgBusy',['$compile','$templateCache','cgBusyDefaults','cgBusyProfiles','$http','_cgBusyTrackerFactory',
-    function($compile,$templateCache,cgBusyDefaults,cgBusyProfiles,$http,_cgBusyTrackerFactory){
+angular.module('cgBusy').directive('cgBusy',['$compile','$templateCache','cgBusyDefaults','cgBusyProfiles','$http','_cgBusyTrackerFactory','$window',
+    function($compile,$templateCache,cgBusyDefaults,cgBusyProfiles,$http,_cgBusyTrackerFactory,$window){
         return {
             restrict: 'A',
             transclude: true,
@@ -254,25 +254,31 @@ angular.module('cgBusy').directive('cgBusy',['$compile','$templateCache','cgBusy
                         if (options.backdrop){
                             var backdrop = '<div class="cg-busy cg-busy-backdrop cg-busy-backdrop-animation ng-hide" ng-show="$cgBusyIsActive()"></div>';
                             backdropElement = $compile(backdrop)(templateScope);
-                            element.append(backdropElement);
                         }
 
                         var template = '<div class="'+options.wrapperClass+' ng-hide" ng-show="$cgBusyIsActive()">' + indicatorTemplate + '</div>';
                         templateElement = $compile(template)(templateScope);
 
                         angular.element(templateElement.children()[0])
-                            .css('position','absolute')
-                            .css('top',0)
-                            .css('left',0)
-                            .css('right',0)
-                            .css('bottom',0);
+                            .css({
+                                'position': 'absolute',
+                                'top': 0,
+                                'left': 0,
+                                'right': 0,
+                                'bottom': 0
+                            });
 
                        // Get the original content and append it
                         transcludeFn(scope, function (orig) {
                             originalElementContent = orig;
                             element.append(orig);
 
-                            // append cg-busy
+                            // add backdrop
+                            if (options.backdrop) {
+                              element.append(backdropElement);
+                            }
+
+                            // add cg-busy
                             element.append(templateElement);
                         });
                     };
