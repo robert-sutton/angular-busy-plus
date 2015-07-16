@@ -7,6 +7,7 @@ angular.module('cgBusy').factory('_cgBusyTrackerFactory',['$timeout','$q',functi
 
         var tracker = {};
         tracker.promises = [];
+        tracker.errors = [];
         tracker.delayPromise = null;
         tracker.durationPromise = null;
         tracker.delayJustFinished = false;
@@ -15,6 +16,7 @@ angular.module('cgBusy').factory('_cgBusyTrackerFactory',['$timeout','$q',functi
             tracker.minDuration = options.minDuration;
 
             tracker.promises = [];
+            tracker.errors = [];
             angular.forEach(options.promises,function(p){
                 if (!p || p.$cgBusyFulfilled) {
                     return;
@@ -80,7 +82,8 @@ angular.module('cgBusy').factory('_cgBusyTrackerFactory',['$timeout','$q',functi
                     return;
                 }
                 tracker.promises.splice(tracker.promises.indexOf(promise),1);
-            },function(){
+            },function(err){
+                tracker.errors.push(err);
                 promise.$cgBusyFulfilled = true;
                 if (tracker.promises.indexOf(promise) === -1) {
                     return;
@@ -109,6 +112,10 @@ angular.module('cgBusy').factory('_cgBusyTrackerFactory',['$timeout','$q',functi
                 }
                 return tracker.promises.length > 0;
             }
+        };
+
+        tracker.hasError = function(){
+            return tracker.errors.length > 0;
         };
 
         return tracker;
@@ -309,6 +316,9 @@ angular.module('cgBusy').directive('cgBusy',['$compile','$templateCache','cgBusy
                                 templateElement.remove();
                                 originalElementContent.css('visibility', '');
                                 attrs.$set('disabled', false);
+                            }
+                            if (!attrs.ngDisabled) {
+                              attrs.$set('disabled', busy);  
                             }
                         });
                     };
