@@ -304,18 +304,15 @@ angular.module('cgBusy').directive('cgBusy',['$compile','$templateCache','cgBusy
                         // set them on the new template element.
                         deregisterActiveWatch = templateScope.$watch('$cgBusyIsActive()', function (busy) {
                             if (busy) {
-                                if (options.inlineReplace) {
-                                    // hide original element via visiblity so button does not shrink
-                                    originalElementContent.css('visibility', 'hidden');
-                                }
                                 // append spinner to button
                                 element.append(templateElement);
-                                attrs.$set('disabled', true);
                             } else {
                                 // promise resolved
                                 templateElement.remove();
-                                originalElementContent.css('visibility', '');
-                                attrs.$set('disabled', false);
+                            }
+                            if (options.inlineReplace) {
+                                // hide original element via visiblity so button does not shrink
+                                originalElementContent.css('visibility', (busy ? 'hidden' : ''));
                             }
                             if (!attrs.ngDisabled) {
                               attrs.$set('disabled', busy);  
