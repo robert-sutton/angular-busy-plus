@@ -16,7 +16,7 @@ angular.module('cgBusy').factory('_cgBusyTrackerFactory',['$timeout','$q',functi
             tracker.minDuration = options.minDuration;
 
             tracker.promises = [];
-            tracker.errors = [];
+            tracker.errors.splice(0, tracker.errors.length); // reset array
             angular.forEach(options.promises,function(p){
                 if (!p || p.$cgBusyFulfilled) {
                     return;
@@ -40,14 +40,14 @@ angular.module('cgBusy').factory('_cgBusyTrackerFactory',['$timeout','$q',functi
                 tracker.durationPromise = $timeout(function(){
                     tracker.durationPromise = null;
                 },parseInt(options.minDuration,10) + (options.delay ? parseInt(options.delay,10) : 0));
-            }            
+            }
         };
 
         tracker.isPromise = function(promiseThing){
             var then = promiseThing && (promiseThing.then || promiseThing.$then ||
                 (promiseThing.$promise && promiseThing.$promise.then));
 
-            return typeof then !== 'undefined';            
+            return typeof then !== 'undefined';
         };
 
         tracker.callThen = function(promiseThing,success,error){
@@ -59,7 +59,7 @@ angular.module('cgBusy').factory('_cgBusyTrackerFactory',['$timeout','$q',functi
             } else if (promiseThing.denodeify){
                 promise = $q.when(promiseThing);
             }
-                       
+
             var then = (promise.then || promise.$then);
 
             then.call(promise,success,error);
@@ -103,8 +103,8 @@ angular.module('cgBusy').factory('_cgBusyTrackerFactory',['$timeout','$q',functi
                 }
                 return tracker.promises.length > 0;
             } else {
-                //if both delay and min duration are set, 
-                //we don't want to initiate the min duration if the 
+                //if both delay and min duration are set,
+                //we don't want to initiate the min duration if the
                 //promise finished before the delay was complete
                 tracker.delayJustFinished = false;
                 if (tracker.promises.length === 0) {
@@ -155,8 +155,8 @@ angular.module('cgBusy').provider('cgBusyProfiles', function() {
 
 angular.module('cgBusy').value('cgBusyDefaults',{});
 
-angular.module('cgBusy').directive('cgBusy',['$compile','$templateCache','cgBusyDefaults','cgBusyProfiles','$http','_cgBusyTrackerFactory','$window',
-    function($compile,$templateCache,cgBusyDefaults,cgBusyProfiles,$http,_cgBusyTrackerFactory,$window){
+angular.module('cgBusy').directive('cgBusy',['$compile','$templateCache','cgBusyDefaults','cgBusyProfiles','$http','_cgBusyTrackerFactory','$q',
+    function($compile,$templateCache,cgBusyDefaults,cgBusyProfiles,$http,_cgBusyTrackerFactory,$q){
         return {
             restrict: 'A',
             transclude: true,
@@ -170,7 +170,9 @@ angular.module('cgBusy').directive('cgBusy',['$compile','$templateCache','cgBusy
 
                 var templateElement;
                 var backdropElement;
+                var errorElement;
                 var currentTemplate;
+                var currentErrorTemplate;
                 var templateScope;
                 var backdrop;
                 var tracker = _cgBusyTrackerFactory();
@@ -184,8 +186,10 @@ angular.module('cgBusy').directive('cgBusy',['$compile','$templateCache','cgBusy
                     backdrop: true,
                     inline: false,
                     inlineReplace: true,
+                    inlineErrorClass: 'cg-busy-error',
                     message:'Please Wait...',
-                    wrapperClass: 'cg-busy cg-busy-animation'
+                    wrapperClass: 'cg-busy cg-busy-animation',
+                    errorTemplateUrl: undefined
                 };
 
                 angular.extend(defaults,cgBusyDefaults);
@@ -234,6 +238,8 @@ angular.module('cgBusy').directive('cgBusy',['$compile','$templateCache','cgBusy
                     }
 
                     templateScope.$message = options.message;
+                    templateScope.$errors = tracker.errors;
+                    templateScope.$inline = options.inline || '';
 
                     if (!angular.equals(tracker.promises,options.promise)) {
                         tracker.reset({
@@ -247,15 +253,19 @@ angular.module('cgBusy').directive('cgBusy',['$compile','$templateCache','cgBusy
                         return tracker.active();
                     };
 
-                    templateScope.$applyCgBusy = function(indicatorTemplate) {
+                    templateScope.$cgBusyHasError = function () {
+                        return tracker.active() ? false : tracker.hasError();
+                    };
+
+                    templateScope.$applyCgBusy = function(indicatorTemplate, errorTemplate) {
                         if (options.inline) {
-                            templateScope.$applyInlineCgBusy(indicatorTemplate);
+                            templateScope.$applyInlineCgBusy(indicatorTemplate, errorTemplate);
                         } else {
-                            templateScope.$applyNormalCgBusy(indicatorTemplate);
+                            templateScope.$applyNormalCgBusy(indicatorTemplate, errorTemplate);
                         }
                     };
 
-                    templateScope.$applyNormalCgBusy = function(indicatorTemplate) {
+                    templateScope.$applyNormalCgBusy = function(indicatorTemplate, errorTemplate) {
                         options.backdrop = typeof options.backdrop === 'undefined' ? true : options.backdrop;
 
                         if (options.backdrop){
@@ -264,6 +274,9 @@ angular.module('cgBusy').directive('cgBusy',['$compile','$templateCache','cgBusy
                         }
 
                         var template = '<div class="'+options.wrapperClass+' ng-hide" ng-show="$cgBusyIsActive()">' + indicatorTemplate + '</div>';
+                        if (options.errorTemplateUrl) {
+                            template += '<div ng-if="$cgBusyHasError()">' + errorTemplate + '</div>';
+                        }
                         templateElement = $compile(template)(templateScope);
 
                         angular.element(templateElement.children()[0])
@@ -290,8 +303,9 @@ angular.module('cgBusy').directive('cgBusy',['$compile','$templateCache','cgBusy
                         });
                     };
 
-                    templateScope.$applyInlineCgBusy = function(indicatorTemplate) {
-                        var template = '<div class="'+options.wrapperClass+'">' + indicatorTemplate + '</div>';
+                    templateScope.$applyInlineCgBusy = function(indicatorTemplate, errorTemplate) {
+                        var template = '<div class="'+options.wrapperClass+'">' + indicatorTemplate + '</div>',
+                          wrappedErrorTemplate;
                         templateElement = $compile(template)(templateScope);
 
                         // Get the original button content and append it
@@ -309,19 +323,31 @@ angular.module('cgBusy').directive('cgBusy',['$compile','$templateCache','cgBusy
                             } else {
                                 // promise resolved
                                 templateElement.remove();
+
+                                // remove any previous errors
+                                if (errorElement) {
+                                  errorElement.remove();
+                                  errorElement = null;
+                                }
+
+                                if (options.errorTemplateUrl && templateScope.$cgBusyHasError()) {
+                                  wrappedErrorTemplate = '<div class="'+options.inlineErrorClass+'">' + errorTemplate + '</div>';
+                                  errorElement = $compile(wrappedErrorTemplate)(templateScope);
+                                  element.parent().prepend(errorElement);
+                                }
                             }
                             if (options.inlineReplace) {
                                 // hide original element via visiblity so button does not shrink
                                 originalElementContent.css('visibility', (busy ? 'hidden' : ''));
                             }
                             if (!attrs.ngDisabled) {
-                              attrs.$set('disabled', busy);  
+                              attrs.$set('disabled', busy);
                             }
                         });
                     };
 
 
-                    if (!templateElement || currentTemplate !== options.templateUrl || backdrop !== options.backdrop) {
+                    if (!templateElement || currentTemplate !== options.templateUrl || backdrop !== options.backdrop || currentErrorTemplate !== options.errorTemplateUrl) {
 
                         if (templateElement) {
                             templateElement.remove();
@@ -332,9 +358,20 @@ angular.module('cgBusy').directive('cgBusy',['$compile','$templateCache','cgBusy
 
                         currentTemplate = options.templateUrl;
                         backdrop = options.backdrop;
+                        currentErrorTemplate = options.errorTemplateUrl;
 
-                        $http.get(currentTemplate,{cache: $templateCache}).success(templateScope.$applyCgBusy).error(function(data){
-                            throw new Error('Template specified for cgBusy ('+options.templateUrl+') could not be loaded. ' + data);
+
+                        $q.all({
+                            template: $http.get(currentTemplate, {
+                                cache: $templateCache
+                            }),
+                            errorTemplate: $q.when(currentErrorTemplate ? $http.get(currentErrorTemplate, {
+                                cache: $templateCache
+                            }) : {data: null})
+                        }).then(function(results) {
+                            templateScope.$applyCgBusy(results.template.data, results.errorTemplate.data);
+                        }, function(err) {
+                            throw new Error('Template(s) specified for cgBusy ('+options.templateUrl+ (options.errorTemplateUrl ? ' or ' + options.errorTemplateUrl : '') + ') +could not be loaded. ' + angular.toJson(err));
                         });
                     }
 
