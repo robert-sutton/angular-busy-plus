@@ -184,6 +184,7 @@ angular.module('cgBusy').directive('cgBusy',['$compile','$templateCache','cgBusy
                     delay:0,
                     minDuration:0,
                     backdrop: true,
+                    aria: true, // add aria-busy tag to normal (not inline) mode
                     inline: false,
                     inlineReplace: true,
                     inlineErrorClass: 'cg-busy-error',
@@ -258,6 +259,10 @@ angular.module('cgBusy').directive('cgBusy',['$compile','$templateCache','cgBusy
                     };
 
                     templateScope.$applyCgBusy = function(indicatorTemplate, errorTemplate) {
+                        if (angular.isFunction(deregisterActiveWatch)) {
+                            deregisterActiveWatch();
+                            deregisterActiveWatch = null;
+                        }
                         if (options.inline) {
                             templateScope.$applyInlineCgBusy(indicatorTemplate, errorTemplate);
                         } else {
@@ -301,6 +306,15 @@ angular.module('cgBusy').directive('cgBusy',['$compile','$templateCache','cgBusy
                             // add cg-busy
                             element.append(templateElement);
                         });
+
+                        // add aria-busy to element
+                        if (options.aria) {
+                            // set aria-busy based on cgBusyIsActive
+                            deregisterActiveWatch = templateScope.$watch('$cgBusyIsActive()', function (busy) {
+                                // element.attr('aria-busy', busy);
+                                attrs.$set('aria-busy', busy);
+                            });
+                        }
                     };
 
                     templateScope.$applyInlineCgBusy = function(indicatorTemplate, errorTemplate) {
