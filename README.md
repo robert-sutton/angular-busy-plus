@@ -1,17 +1,23 @@
-# angular-busy [![Build Status](https://travis-ci.org/cgross/angular-busy.png?branch=master)](https://travis-ci.org/cgross/angular-busy)
+# angular-busy-plus [![Build Status](https://travis-ci.org/faceleg/angular-busy-plus.png?branch=master)](https://travis-ci.org/faceleg/angular-busy-plus)
 
 > Show busy/loading indicators on any $http or $resource request, or on any promise.
 
 ## Demo
 
-[Live Demo](http://cgross.github.io/angular-busy/demo)
+[Live Demo](http://faceleg.github.io/angular-busy-plus/demo)
 
 ## Getting Started
 
 Install with Bower or download the files directly from the dist folder in the repo.
 
 ```bash
-bower install angular-busy --save
+bower install angular-busy-plus --save
+```
+
+Install into your project with npm
+
+```bash
+npm install angular-busy-plus --save
 ```
 
 Add `dist/angular-busy.js` and `dist/angular-busy.css` to your index.html.
