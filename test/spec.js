@@ -1,10 +1,13 @@
+/*global describe, beforeEach, inject, it, expect, angular*/
 describe('cgBusy', function() {
 
 	var scope,compile,q,httpBackend,timeout,cgBusyProfiles;
+
 	var testProfile1 = {
 		delay: 200,
 		minDuration: 100
 	},
+
 	testProfile2 = {
 		message: 'foo',
 		delay: 100
@@ -29,7 +32,6 @@ describe('cgBusy', function() {
 	}));
 
 	it('should show the overlay during promise', function() {
-
 		this.element = compile('<div cg-busy="my_promise"></div>')(scope);
 		angular.element('body').append(this.element);
 
@@ -51,7 +53,6 @@ describe('cgBusy', function() {
 	});
 
 	it('should show the overlay during multiple promises', function() {
-
 		this.element = compile('<div cg-busy="[my_promise,my_promise2]"></div>')(scope);
 		angular.element('body').append(this.element);
 
@@ -80,7 +81,6 @@ describe('cgBusy', function() {
 	});
 
 	it('should load custom templates', function(){
-
 		this.element = compile('<div cg-busy="{promise:my_promise,templateUrl:\'test-custom-template.html\'}"></div>')(scope);
 		angular.element('body').append(this.element);
 
@@ -89,11 +89,9 @@ describe('cgBusy', function() {
 		scope.$apply();
 
 		expect(angular.element('#custom').html()).toBe('test-custom-template-contents');
-
 	});
 
 	it('should delay when delay provided.', function() {
-
 		this.element = compile('<div cg-busy="{promise:my_promise,delay:300}"></div>')(scope);
 		angular.element('body').append(this.element);
 
@@ -112,13 +110,11 @@ describe('cgBusy', function() {
 		timeout.flush(301);
 		expect(this.element.children().css('display')).toBe('block');
 		this.testPromise.resolve();
-		scope.$apply();			
+		scope.$apply();
 		expect(this.element.children().css('display')).toBe('none');
-
 	});
 
 	it('should use minDuration correctly.', function() {
-
 		this.element = compile('<div cg-busy="{promise:my_promise,minDuration:1000}"></div>')(scope);
 		angular.element('body').append(this.element);
 
@@ -139,15 +135,13 @@ describe('cgBusy', function() {
 		expect(this.element.children().css('display')).toBe('block');
 
 		timeout.flush(300); //900ms total
-		expect(this.element.children().css('display')).toBe('block');	
+		expect(this.element.children().css('display')).toBe('block');
 
 		timeout.flush(101); //1001ms total
 		expect(this.element.children().css('display')).toBe('none');
-
 	});
 
 	it('cgBusyProfiles addProfile/get/keys should work correctly.', function() {
-	
 		expect(cgBusyProfiles.get('testProfile1')).toEqual(testProfile1);
 		expect(cgBusyProfiles.get('testProfile2')).toEqual(testProfile2);
 
