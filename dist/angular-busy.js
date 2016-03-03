@@ -12,6 +12,34 @@ angular.module('cgBusy').factory('_cgBusyTrackerFactory',['$timeout','$q',functi
         tracker.durationPromise = null;
         tracker.delayJustFinished = false;
 
+
+        var addPromiseLikeThing = function(promise){
+
+            if (!tracker.isPromise(promise)) {
+                throw new Error('cgBusy expects a promise (or something that has a .promise or .$promise');
+            }
+
+            if (tracker.promises.indexOf(promise) !== -1){
+                return;
+            }
+            tracker.promises.push(promise);
+
+            tracker.callThen(promise, function(){
+                promise.$cgBusyFulfilled = true;
+                if (tracker.promises.indexOf(promise) === -1) {
+                    return;
+                }
+                tracker.promises.splice(tracker.promises.indexOf(promise),1);
+            },function(err){
+                tracker.errors.push(err);
+                promise.$cgBusyFulfilled = true;
+                if (tracker.promises.indexOf(promise) === -1) {
+                    return;
+                }
+                tracker.promises.splice(tracker.promises.indexOf(promise),1);
+            });
+        };
+
         tracker.reset = function(options){
             tracker.minDuration = options.minDuration;
 
@@ -63,33 +91,6 @@ angular.module('cgBusy').factory('_cgBusyTrackerFactory',['$timeout','$q',functi
             var then = (promise.then || promise.$then);
 
             then.call(promise,success,error);
-        };
-
-        var addPromiseLikeThing = function(promise){
-
-            if (!tracker.isPromise(promise)) {
-                throw new Error('cgBusy expects a promise (or something that has a .promise or .$promise');
-            }
-
-            if (tracker.promises.indexOf(promise) !== -1){
-                return;
-            }
-            tracker.promises.push(promise);
-
-            tracker.callThen(promise, function(){
-                promise.$cgBusyFulfilled = true;
-                if (tracker.promises.indexOf(promise) === -1) {
-                    return;
-                }
-                tracker.promises.splice(tracker.promises.indexOf(promise),1);
-            },function(err){
-                tracker.errors.push(err);
-                promise.$cgBusyFulfilled = true;
-                if (tracker.promises.indexOf(promise) === -1) {
-                    return;
-                }
-                tracker.promises.splice(tracker.promises.indexOf(promise),1);
-            });
         };
 
         tracker.active = function(){
