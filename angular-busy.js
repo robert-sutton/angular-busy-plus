@@ -1,17 +1,16 @@
+/*global angular*/
+
 angular.module('cgBusy',[]);
 
 //loosely modeled after angular-promise-tracker
-angular.module('cgBusy').factory('_cgBusyTrackerFactory',['$timeout','$q',function($timeout,$q){
+angular.module('cgBusy').factory('_cgBusyTrackerFactory', [
+    '$timeout',
+    '$q',
+  function($timeout, $q){
 
-    return function(){
+    return function() {
 
         var tracker = {};
-        tracker.promises = [];
-        tracker.errors = [];
-        tracker.delayPromise = null;
-        tracker.durationPromise = null;
-        tracker.delayJustFinished = false;
-
 
         var addPromiseLikeThing = function(promise){
 
@@ -40,11 +39,18 @@ angular.module('cgBusy').factory('_cgBusyTrackerFactory',['$timeout','$q',functi
             });
         };
 
+        tracker.promises = [];
+        tracker.errors = [];
+        tracker.delayPromise = null;
+        tracker.durationPromise = null;
+        tracker.delayJustFinished = false;
+
         tracker.reset = function(options){
             tracker.minDuration = options.minDuration;
 
             tracker.promises = [];
             tracker.errors.splice(0, tracker.errors.length); // reset array
+
             angular.forEach(options.promises,function(p){
                 if (!p || p.$cgBusyFulfilled) {
                     return;
@@ -103,16 +109,16 @@ angular.module('cgBusy').factory('_cgBusyTrackerFactory',['$timeout','$q',functi
                     return true;
                 }
                 return tracker.promises.length > 0;
-            } else {
-                //if both delay and min duration are set,
-                //we don't want to initiate the min duration if the
-                //promise finished before the delay was complete
-                tracker.delayJustFinished = false;
-                if (tracker.promises.length === 0) {
-                    tracker.durationPromise = null;
-                }
-                return tracker.promises.length > 0;
             }
+
+			//if both delay and min duration are set,
+			//we don't want to initiate the min duration if the
+			//promise finished before the delay was complete
+			tracker.delayJustFinished = false;
+			if (tracker.promises.length === 0) {
+				tracker.durationPromise = null;
+			}
+			return tracker.promises.length > 0;
         };
 
         tracker.hasError = function(){
@@ -125,12 +131,15 @@ angular.module('cgBusy').factory('_cgBusyTrackerFactory',['$timeout','$q',functi
 }]);
 
 angular.module('cgBusy').provider('cgBusyProfiles', function() {
+
     this.profiles = {};
 
     this.addProfile = function (profileName, profileValues) {
         if (!profileName) {
             throw new Error('profileName must be provided');
-        } else if (!angular.isObject(profileValues)) {
+        }
+
+		if (!angular.isObject(profileValues)) {
             throw new Error('profileValues must be an object!');
         }
         this.profiles[profileName] = profileValues;
@@ -144,9 +153,11 @@ angular.module('cgBusy').provider('cgBusyProfiles', function() {
                 return profiles[profileName];
             },
             keys: function() {
-                var keys = [];
-                for (var key in profiles) {
+                var key, keys = [];
+                for (key in profiles) {
+                  if (profiles.hasOwnProperty(key)) {
                     keys.push(key);
+                  }
                 }
                 return keys;
             }
@@ -156,10 +167,25 @@ angular.module('cgBusy').provider('cgBusyProfiles', function() {
 
 angular.module('cgBusy').value('cgBusyDefaults',{});
 
-angular.module('cgBusy').directive('cgBusy',['$compile','$templateCache','cgBusyDefaults','cgBusyProfiles','$http','_cgBusyTrackerFactory','$q',
-    function($compile,$templateCache,cgBusyDefaults,cgBusyProfiles,$http,_cgBusyTrackerFactory,$q){
-        return {
-            restrict: 'A',
+angular.module('cgBusy').directive('cgBusy', [
+		'$compile',
+		'$templateCache',
+		'cgBusyDefaults',
+		'cgBusyProfiles',
+		'$http',
+		'_cgBusyTrackerFactory',
+		'$q',
+		function(
+			$compile,
+			$templateCache,
+			cgBusyDefaults,
+			cgBusyProfiles,
+			$http,
+			_cgBusyTrackerFactory,
+			$q
+){
+	return {
+            restrict: 'AE',
             transclude: true,
             link: function(scope, element, attrs, fn, transcludeFn) {
 
@@ -362,7 +388,9 @@ angular.module('cgBusy').directive('cgBusy',['$compile','$templateCache','cgBusy
                     };
 
 
-                    if (!templateElement || currentTemplate !== options.templateUrl || backdrop !== options.backdrop || currentErrorTemplate !== options.errorTemplateUrl) {
+                    if (!templateElement || currentTemplate !== options.templateUrl ||
+                        backdrop !== options.backdrop ||
+                        currentErrorTemplate !== options.errorTemplateUrl ) {
 
                         if (templateElement) {
                             templateElement.remove();
