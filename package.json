@@ -8,27 +8,31 @@
     "url": "git://github.com/faceleg/angular-busy-plus.git"
   },
   "devDependencies": {
+    "browser-sync": "^2.12.8",
     "grunt": "~1.0.1",
-    "grunt-contrib-connect": "~1.0.2",
-    "grunt-contrib-watch": "~1.0.0",
-    "grunt-contrib-jshint": "~1.0.0",
-    "grunt-contrib-jasmine": "~1.0.0",
     "grunt-angular-templates": "~1.0.3",
     "grunt-contrib-concat": "~1.0.0",
+    "grunt-contrib-connect": "~1.0.2",
     "grunt-contrib-copy": "~1.0.0",
-    "grunt-contrib-uglify": "~1.0.1",
     "grunt-contrib-cssmin": "~1.0.1",
+    "grunt-contrib-jasmine": "~1.0.0",
+    "grunt-contrib-jshint": "~1.0.0",
+    "grunt-contrib-uglify": "~1.0.1",
+    "grunt-contrib-watch": "~1.0.0",
+    "gulp": "^3.9.1",
+    "gulp-if": "^2.0.1",
+    "gulp-jshint": "^2.0.1",
     "load-grunt-tasks": "~3.5.0"
   },
   "scripts": {
     "test": "grunt test -v"
   },
   "eslintConfig": {
-	  "env": {
-		  "globals": {
-			  "describe": true,
-			  "beforeEach": true
-		  }
-	  }
+    "env": {
+      "globals": {
+        "describe": true,
+        "beforeEach": true
+      }
+    }
   }
 }
