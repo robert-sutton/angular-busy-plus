@@ -1,13 +1,15 @@
 {
   "name": "angular-busy-plus",
-  "version": "4.1.5",
+  "version": "4.1.6",
   "main": [
     "dist/angular-busy.js",
     "dist/angular-busy.css"
   ],
   "dependencies": {
-    "angular": "~1.5.5",
-    "angular-animate": "~1.5.5"
+    "angular": "^1.5.5",
+    "angular-animate": "^1.5.5",
+    "angular-mocks": "^1.5.5",
+    "bootstrap": "^3.3.6"
   },
   "ignore": [
     "**/.*",
@@ -21,12 +23,20 @@
     "./angular-busy.css",
     "./angular-busy.html",
     "./angular-busy.js",
-    "Gruntfile.js",
+    "gulpfile.js",
     "package.json",
     "README.md"
   ],
   "devDependencies": {
-    "angular-mocks": "~1.5.5",
-    "jquery": "~2.1.0"
+    "angular-mocks": "~1.5.5"
+  },
+  "overrides": {
+    "bootstrap": {
+      "main": [
+        "dist/js/bootstrap.js",
+        "dist/css/bootstrap.css",
+        "dist/css/bootstrap.less"
+      ]
+    }
   }
 }

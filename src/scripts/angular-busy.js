@@ -1,4 +1,5 @@
 /*global angular*/
+'use strict';
 
 angular.module('cgBusy',[]);
 
@@ -414,7 +415,9 @@ angular.module('cgBusy').directive('cgBusy', [
                         }).then(function(results) {
                             templateScope.$applyCgBusy(results.template.data, results.errorTemplate.data);
                         }, function(err) {
-                            throw new Error('Template(s) specified for cgBusy ('+options.templateUrl+ (options.errorTemplateUrl ? ' or ' + options.errorTemplateUrl : '') + ') +could not be loaded. ' + angular.toJson(err));
+                            throw new Error('Template(s) specified for cgBusy (' + options.templateUrl +
+                                  (options.errorTemplateUrl ? ' or ' + options.errorTemplateUrl : '') +
+                                  ') +could not be loaded. ' + angular.toJson(err));
                         });
                     }
 

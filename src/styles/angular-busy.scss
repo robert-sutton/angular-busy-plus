@@ -1,0 +1,175 @@
+// colors
+$white: #fff;
+$black: #000;
+$light-grayish-cyan: #e9eeee;
+$very-light-gray: #ddd;
+$very-dark-gray: #333;
+$very-darker-gray: #555;
+
+
+.cg-busy {
+  bottom: 0;
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+  z-index: 1001;
+}
+
+.cg-busy-animation.ng-hide-add,
+.cg-busy-animation.ng-hide-remove {
+  display: block;
+  transition: all .3s ease;
+}
+
+.cg-busy-animation.ng-hide-remove {
+  opacity: 0;
+  transform: translate(0, -40px);
+
+  &.ng-hide-remove-active {
+    opacity: 1;
+    transform: translate(0, 0);
+  }
+}
+
+.cg-busy-animation.ng-hide-add {
+  opacity: 1;
+  transform: translate(0, 0);
+
+  &.ng-hide-add-active {
+    opacity: 0;
+    transform: translate(0, -40px);
+  }
+}
+
+.cg-busy-backdrop {
+  background-color: $white;
+  opacity: .7;
+}
+
+.cg-busy-backdrop-animation.ng-hide-add,
+.cg-busy-backdrop-animation.ng-hide-remove {
+  display: block;
+  transition: opacity .3s ease;
+}
+
+.cg-busy-backdrop-animation.ng-hide {
+  opacity: 0;
+}
+
+// All styles below are for the default template.
+
+.cg-busy-default-wrapper {
+  text-align: center;
+}
+
+.cg-busy-default-sign {
+  background-color: $light-grayish-cyan;
+  border: 1px solid $very-light-gray;
+  border-radius: 7px;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+  border-top-width: 0;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .2), 0 1px 2px rgba(0, 0, 0, .05);
+  color: $very-dark-gray;
+  display: inline-block;
+  padding-bottom: 6px;
+  position: relative;
+  text-shadow: 0 1px 1px rgba(255, 255, 255, .75);
+  z-index: 1002;
+}
+
+.cg-busy-default-text {
+  color: $very-darker-gray;
+  font-size: 16px;
+  margin: 13px 12px 6px 49px;
+  max-width: 400px;
+  text-align: left;
+}
+
+.cg-busy-default-spinner {
+  display: inline-block;
+  height: 25px;
+  left: 14px;
+  position: absolute;
+  top: 12px;
+  width: 25px;
+
+  div {
+    animation: cg-busy-spinner-anim 1s linear infinite;
+    background: $black;
+    border-radius: 50px;
+    box-shadow: 0 0 3px rgba(0, 0, 0, .2);
+    height: 26%;
+    left: 44.5%;
+    opacity: 0;
+    position: absolute;
+    top: 37%;
+    width: 12%;
+
+    .bar1 {
+      animation-delay: 0s;
+      transform: rotate(0deg) translate(0, -142%);
+    }
+
+    .bar2 {
+      animation-delay: -.9167s;
+      transform: rotate(30deg) translate(0, -142%);
+    }
+
+    .bar3 {
+      animation-delay: -.833s;
+      transform: rotate(60deg) translate(0, -142%);
+    }
+
+    .bar4 {
+      animation-delay: -.75s;
+      transform: rotate(90deg) translate(0, -142%);
+    }
+
+    .bar5 {
+      animation-delay: -.667s;
+      transform: rotate(120deg) translate(0, -142%);
+    }
+
+    .bar6 {
+      animation-delay: -.5833s;
+      transform: rotate(150deg) translate(0, -142%);
+    }
+
+    .bar7 {
+      animation-delay: -.5s;
+      transform: rotate(180deg) translate(0, -142%);
+    }
+
+    .bar8 {
+      animation-delay: -.41667s;
+      transform: rotate(210deg) translate(0, -142%);
+    }
+
+    .bar9 {
+      animation-delay: -.333s;
+      transform: rotate(240deg) translate(0, -142%);
+    }
+
+    .bar10 {
+      animation-delay: -.25s;
+      transform: rotate(270deg) translate(0, -142%);
+    }
+
+    .bar11 {
+      animation-delay: -.1667s;
+      transform: rotate(300deg) translate(0, -142%);
+    }
+
+    .bar12 {
+      animation-delay: -.0833s;
+      transform: rotate(330deg) translate(0, -142%);
+    }
+  }
+}
+
+@keyframes cg-busy-spinner-anim {
+  from {opacity: 1;}
+  to {opacity: .25;}
+}

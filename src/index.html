@@ -6,12 +6,10 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Latest compiled and minified CSS -->
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css"
-      integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7"
-      crossorigin="anonymous">
-  <link href="../dist/angular-busy.css" rel="stylesheet">
-  <link href="gh-fork-ribbon.css" rel="stylesheet">
+  <!-- bower:css -->
+  <!-- endbower -->
+  <!-- inject:css -->
+  <!-- endinject -->
 
 </head>
 <body data-ng-controller="DemoCtrl" style="padding-top:0px">
@@ -25,19 +23,16 @@
     </div>
 
     <div class="container">
-      <div class="row">
 
+      <div class="row">
         <div class="col-md-12">
             <h2>angular-busy</h2>
             <p class="lead">Show busy/loading indicators on any $http or $resource request, or on any promise.</p>
         </div>
-
       </div>
 
       <div class="row">
-
         <div class="col-md-4">
-
           <form class="form-horizontal">
             <fieldset>
               <legend>Demo Options</legend>
@@ -77,10 +72,10 @@
                   </select>
                 </div>
               </div>
+              <div class="col-sm-offset-5 col-sm-7" style="padding-right:0px">
+                <button class="btn btn-default pull-right" data-ng-click="demo()">Demo</button>
+              </div>
             </fieldset>
-            <div class="col-sm-offset-5 col-sm-7" style="padding-right:0px">
-              <button class="btn btn-default pull-right" data-ng-click="demo()">Demo</button>
-            </div>
           </form>
 
         </div>
@@ -135,12 +130,10 @@
     </div>
 
   </div>
+  <!-- bower:js -->
+  <!-- endbower -->
 
-
-  <script src="../bower_components/angular/angular.js"></script>
-  <script src="../bower_components/angular-animate/angular-animate.js"></script>
-  <script src="../dist/angular-busy.js"></script>
-  <script src="demo.js"></script>
-
+  <!-- inject:js -->
+  <!-- endinject -->
 </body>
 </html>

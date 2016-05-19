@@ -1,3 +1,5 @@
+/*global angular */
+'use strict';
 angular.module('app', ['ngAnimate','cgBusy']);
 
 angular.module('app').controller('DemoCtrl',function($scope,$http){

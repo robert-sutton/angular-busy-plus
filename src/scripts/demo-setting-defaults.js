@@ -1,4 +1,5 @@
 /*global angular */
+'use strict';
 angular.module('app', ['ngAnimate','cgBusy'])
   .value('cgBusyDefaults', {
     backdrop: true,
