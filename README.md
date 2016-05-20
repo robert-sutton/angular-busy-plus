@@ -95,6 +95,20 @@ angular.module('your_app').value('cgBusyDefaults',{
 
 Only the values you'd like overriden need to be specified.
 
+## Development
+
+Angular-busy-plus can always be improved, wanna give it a hack?
+
+```bash
+git clone https://github.com/faceleg/angular-busy-plus.git
+cd angular-busy-plus
+npm install
+gulp serve
+```
+
+Modifying the files in 'src/' will be automatically refresh the files in 'build/' and
+will refresh the browser.
+
 
 ## Release History
  * v4.1.3 - Fix for issue #45 and issue #49.
