@@ -8,8 +8,6 @@ var wiredep = require('wiredep'),
   reload = browserSync.reload,
   config = require('./gulp.config')();
 
-
-
 function browserSyncInit(baseDir, files) {
   browserSync.instance = browserSync.init(files, {
     startPath: '/', server: { baseDir: baseDir }
@@ -28,7 +26,7 @@ gulp.task('serve', function () {
         notify: false,
         logPrefix: 'angular-busy-plus',
         scrollElementMapping: ['main', '.mdl-layout'],
-        server: config.tmp
+        server: [config.build, config.src]
       });
 
       gulp.watch(config.src + '/**/*.html', ['inject', reload]);
@@ -52,30 +50,22 @@ gulp.task('install', function () {
 
 gulp.task('vendor-scripts', ['install'], function () {
   return gulp.src(wiredep().js)
-  .pipe(gulp.dest(config.tmp + '/vendor'));
-});
-
-gulp.task('vendor-styles', ['install'], function () {
-  return gulp.src(wiredep().css)
-  .pipe(gulp.dest(config.tmp + '/vendor'));
+  .pipe(gulp.dest(config.build + '/vendor'));
 });
 
 gulp.task('clean', function () {
-  return del([config.tmp, config.dist], {dot: true});
+  return del([config.build, config.dist, 'bower_components'], {dot: true});
 });
 
-gulp.task('inject', ['vendor-styles', 'vendor-scripts'], function () {
+gulp.task('inject', ['vendor-scripts'], function () {
 
-  return gulp.src(config.src + '/*.html')
+  return gulp.src(config.src + '/index.html')
     .pipe(wiredep.stream({
       fileTypes: {
         html: {
           replace: {
             js: function (filePath) {
               return '<script src="' + 'vendor/' + filePath.split('/').pop() + '"></script>';
-            },
-            css: function(filePath) {
-              return '<link rel="stylesheet" href="' + 'vendor/' + filePath.split('/').pop() + '"/>';
             }
           }
         }
@@ -83,25 +73,26 @@ gulp.task('inject', ['vendor-styles', 'vendor-scripts'], function () {
     }))
 
     .pipe($.inject(
-      gulp.src([config.tmp + '/scripts/**/*.js'], { read: false }), {
+      gulp.src([config.build + '/scripts/**/*.js'], { read: false }), {
       addRootSlash: false,
       transform: function(filePath, file, i, length) {
-        return '<script src="' + filePath.replace('.tmp/', '') + '"></script>';
+        return '<script src="' + filePath.replace('build/', '') + '"></script>';
         }
     }))
 
     .pipe($.inject(
-      gulp.src([config.tmp + '/styles/**/*.css'], {read: false }), {
+      gulp.src([config.build + '/styles/**/*.css'], {read: false }), {
       addRootSlash: false,
       transform: function (filePath, file, i, length) {
-        return '<link rel="stylesheet" href="' + filePath.replace('.tmp/', '') + '"/>';
+        return '<link rel="stylesheet" href="' + filePath.replace('build/', '') + '"/>';
       }
     }))
 
-    .pipe(gulp.dest(config.tmp));
+    .pipe(gulp.dest(config.build));
 });
 
 gulp.task('styles', function () {
+
   var AUTOPREFIXER_BROWSERS = [
     'ie >= 10',
     'ie_mob >= 10',
@@ -114,12 +105,12 @@ gulp.task('styles', function () {
     'bb >= 10'
   ];
 
-  gulp.src(config.src + '/styles/**/*.scss')
+  return gulp.src(config.src + '/styles/**/*.scss')
     .pipe($.sourcemaps.init())
     .pipe($.sass({ precision: 10 })
     .on('error', $.sass.logError))
     .pipe($.autoprefixer(AUTOPREFIXER_BROWSERS))
-    .pipe(gulp.dest(config.tmp + '/styles'))
+    .pipe(gulp.dest(config.build + '/styles'))
 
     // concatenate and minify for dist
     .pipe($.if('*.css', $.cssnano()))
@@ -131,8 +122,8 @@ gulp.task('styles', function () {
 
 
 gulp.task('scripts', ['jshint'],  function () {
-  gulp.src(config.src + '/scripts/**/*.js')
-  .pipe(gulp.dest(config.tmp + '/scripts'));
+  return gulp.src(config.src + '/scripts/**/*.js')
+  .pipe(gulp.dest(config.build + '/scripts'));
 });
 
 gulp.task('jshint', function () {

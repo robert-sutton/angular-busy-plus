@@ -107,62 +107,62 @@ $very-darker-gray: #555;
     top: 37%;
     width: 12%;
 
-    .bar1 {
+    &.bar1 {
       animation-delay: 0s;
       transform: rotate(0deg) translate(0, -142%);
     }
 
-    .bar2 {
+    &.bar2 {
       animation-delay: -.9167s;
       transform: rotate(30deg) translate(0, -142%);
     }
 
-    .bar3 {
+    &.bar3 {
       animation-delay: -.833s;
       transform: rotate(60deg) translate(0, -142%);
     }
 
-    .bar4 {
+    &.bar4 {
       animation-delay: -.75s;
       transform: rotate(90deg) translate(0, -142%);
     }
 
-    .bar5 {
+    &.bar5 {
       animation-delay: -.667s;
       transform: rotate(120deg) translate(0, -142%);
     }
 
-    .bar6 {
+    &.bar6 {
       animation-delay: -.5833s;
       transform: rotate(150deg) translate(0, -142%);
     }
 
-    .bar7 {
+    &.bar7 {
       animation-delay: -.5s;
       transform: rotate(180deg) translate(0, -142%);
     }
 
-    .bar8 {
+    &.bar8 {
       animation-delay: -.41667s;
       transform: rotate(210deg) translate(0, -142%);
     }
 
-    .bar9 {
+    &.bar9 {
       animation-delay: -.333s;
       transform: rotate(240deg) translate(0, -142%);
     }
 
-    .bar10 {
+    &.bar10 {
       animation-delay: -.25s;
       transform: rotate(270deg) translate(0, -142%);
     }
 
-    .bar11 {
+    &.bar11 {
       animation-delay: -.1667s;
       transform: rotate(300deg) translate(0, -142%);
     }
 
-    .bar12 {
+    &.bar12 {
       animation-delay: -.0833s;
       transform: rotate(330deg) translate(0, -142%);
     }

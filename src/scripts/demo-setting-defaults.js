@@ -1,6 +1,6 @@
 /*global angular */
 'use strict';
-angular.module('app', ['ngAnimate','cgBusy'])
+angular.module('app2', ['ngAnimate','cgBusy'])
   .value('cgBusyDefaults', {
     backdrop: true,
     delay: 300,
@@ -9,7 +9,7 @@ angular.module('app', ['ngAnimate','cgBusy'])
     wrapperClass: 'cg-busy cg-busy-animation fixed-center'
   });
 
-angular.module('app').controller('DemoCtrl',function($scope,$http){
+angular.module('app2').controller('DemoCtrlSettingDefaults',function($scope,$http){
 
 	$scope.delay = 0;
 	$scope.minDuration = 0;

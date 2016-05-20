@@ -7,9 +7,7 @@
   ],
   "dependencies": {
     "angular": "^1.5.5",
-    "angular-animate": "^1.5.5",
-    "angular-mocks": "^1.5.5",
-    "bootstrap": "^3.3.6"
+    "angular-animate": "^1.5.5"
   },
   "ignore": [
     "**/.*",
@@ -31,12 +29,5 @@
     "angular-mocks": "~1.5.5"
   },
   "overrides": {
-    "bootstrap": {
-      "main": [
-        "dist/js/bootstrap.js",
-        "dist/css/bootstrap.css",
-        "dist/css/bootstrap.less"
-      ]
-    }
   }
 }

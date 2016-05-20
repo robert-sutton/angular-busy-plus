@@ -1,9 +1,10 @@
+'use strict';
 module.exports = function () {
 
   var config = {
     dist: 'dist',
     src: 'src',
-    tmp: '.tmp'
+    build: 'build'
   };
 
   return config;

@@ -38,13 +38,20 @@
     "gulp-typescript": "^2.13.4",
     "gulp-useref": "^3.1.0",
     "gulp-util": "^3.0.7",
+    "jasmine-core": "^2.4.1",
     "jshint-stylish": "^2.2.0",
+    "karma": "^0.13.22",
+    "karma-chrome-launcher": "^1.0.1",
+    "karma-firefox-launcher": "^1.0.0",
+    "karma-jasmine": "^1.0.2",
+    "karma-junit-reporter": "^1.0.0",
     "load-grunt-tasks": "~3.5.0",
     "tslint": "^3.10.2",
     "wiredep": "^4.0.0"
   },
   "scripts": {
-    "test": "grunt test -v"
+    "devTest": "karma start karma.conf.js",
+    "test": "karma start --browsers Firefox --single-run"
   },
   "eslintConfig": {
     "env": {

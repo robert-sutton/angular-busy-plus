@@ -1,7 +1,13 @@
-/*global describe, beforeEach, inject, it, expect, angular*/
+/*global describe, beforeEach, inject, it, expect, angular, document */
+'use strict';
 describe('cgBusy', function() {
 
-	var scope,compile,q,httpBackend,timeout,cgBusyProfiles;
+	var scope,
+      compile,
+      q,
+      httpBackend,
+      timeout,
+      cgBusyProfiles;
 
 	var testProfile1 = {
 		delay: 200,
@@ -18,24 +24,44 @@ describe('cgBusy', function() {
 		cgBusyProfilesProvider.addProfile('testProfile2', testProfile2);
 	}));
 
-	beforeEach(inject(function($rootScope,$compile,$q,$httpBackend,$templateCache,$timeout,_cgBusyProfiles_) {
+	beforeEach(inject(function(
+        $rootScope,
+        $compile,
+        $q,
+        $httpBackend,
+        $templateCache,
+        $timeout,
+        _cgBusyProfiles_) {
+
 		scope = $rootScope.$new();
 		compile = $compile;
 		q = $q;
 		httpBackend = $httpBackend;
 		timeout = $timeout;
 		cgBusyProfiles = _cgBusyProfiles_;
-		httpBackend.whenGET('test-custom-template.html').respond(function(method, url, data, headers){
+		// httpBackend.when('GET', '/test-custom-template.html').respond(function(method, url, data, headers){
 
+			// return [[200],'<div id="custom">test-custom-template-contents</div>'];
+		// });
+    httpBackend.whenGET('../test-custom-template.html').respond(function(method, url, data, headers){
 			return [[200],'<div id="custom">test-custom-template-contents</div>'];
 		});
+
+    httpBackend.whenGET('../custom-cgbusy-template.html').respond(function(method, url, data, headers){
+			return [[200],'<div id="custom">custom cg busy contents</div>'];
+		});
+
+    httpBackend.whenGET('angular-busy.html').respond(function(method, url, data, headers){
+			return [[200],'<div id="custom">angular busy contents</div>'];
+		});
+
 	}));
 
 	it('should show the overlay during promise', function() {
 		this.element = compile('<div cg-busy="my_promise"></div>')(scope);
-		angular.element('body').append(this.element);
+		angular.element(document.body).append(this.element);
 
-		this.testPromise = q.defer();
+    this.testPromise = q.defer();
 		scope.my_promise = this.testPromise.promise;
 
 		//httpBackend.flush();
@@ -81,8 +107,8 @@ describe('cgBusy', function() {
 	});
 
 	it('should load custom templates', function(){
-		this.element = compile('<div cg-busy="{promise:my_promise,templateUrl:\'test-custom-template.html\'}"></div>')(scope);
-		angular.element('body').append(this.element);
+		this.element = compile('<div cg-busy="{promise:my_promise,templateUrl:\'../test-custom-template.html\'}"></div>')(scope);
+		angular.element('<body>').append(this.element);
 
 		httpBackend.flush();
 
